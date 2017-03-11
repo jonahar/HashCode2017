@@ -1,26 +1,32 @@
 
 #include "Endpoint.h"
 
+struct ConnectedEndpoint
+{
+    unsigned int endpointId, latency;
+};
+
+
 Endpoint::Endpoint(unsigned int id, unsigned int dataCenterLatency)
 {
     this->id = id;
     this->dataCenterLatency = dataCenterLatency;
 }
 
-bool Endpoint::addVideo(const Video& video, unsigned int numRequests)
+bool Endpoint::addVideo(unsigned int videoId, unsigned int numRequests)
 {
-    if (this->videos.find(video.getId()) != this->videos.end())
+    if (this->videos.find(videoId) != this->videos.end())
     {
         // this video is already in the list
         return false;
     }
-    this->videos.insert({video.getId(), {video, numRequests, this->dataCenterLatency}});
+    this->videos.insert({videoId, {numRequests, this->dataCenterLatency}});
     return true;
 }
 
-bool Endpoint::updateVideoDistance(const Video& video, unsigned int newDistance)
+bool Endpoint::updateVideoDistance(unsigned int videoId, unsigned int newDistance)
 {
-    auto it = this->videos.find(video.getId());
+    auto it = this->videos.find(videoId);
     if (it != this->videos.end())
     {
         // the video is in the list
@@ -34,9 +40,9 @@ bool Endpoint::updateVideoDistance(const Video& video, unsigned int newDistance)
     return false;
 }
 
-unsigned int Endpoint::getVideoDistance(const Video& video) const
+unsigned int Endpoint::getVideoDistance(unsigned int videoId) const
 {
-    auto it = this->videos.find(video.getId());
+    auto it = this->videos.find(videoId);
     if (it != this->videos.end())
     {
         // the video is in the list
@@ -45,9 +51,9 @@ unsigned int Endpoint::getVideoDistance(const Video& video) const
     return 0;
 }
 
-unsigned int Endpoint::getNumRequests(const Video& video) const
+unsigned int Endpoint::getNumRequests(unsigned int videoId) const
 {
-    auto it = this->videos.find(video.getId());
+    auto it = this->videos.find(videoId);
     if (it != this->videos.end())
     {
         // the video is in the list
@@ -58,5 +64,5 @@ unsigned int Endpoint::getNumRequests(const Video& video) const
 
 unsigned int Endpoint::getId() const
 {
-    return this->id;
+    return id;
 }

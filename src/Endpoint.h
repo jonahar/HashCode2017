@@ -10,7 +10,6 @@
  */
 struct RequestedVideoData
 {
-    const Video& video;
     unsigned int numRequests;
     unsigned int latency;
 };
@@ -20,6 +19,7 @@ class Endpoint
 {
 private:
     unsigned int id, dataCenterLatency;
+    // videos requested by this endpoint
     std::unordered_map<int, RequestedVideoData> videos;
 
 public:
@@ -29,7 +29,7 @@ public:
     /**
      * @return true if the given video was added, and wasn't already in the videos list
      */
-    bool addVideo(const Video& video, unsigned int numRequests);
+    bool addVideo(unsigned int videoId, unsigned int numRequests);
 
     /**
      * notify this endpoint that a new latency is available for the given video.
@@ -38,7 +38,7 @@ public:
      *
      * @return true iff latency was updated
      */
-    bool updateVideoDistance(const Video& video, unsigned int newDistance);
+    bool updateVideoDistance(unsigned int videoId, unsigned int newDistance);
 
     /**
      * @return the latency between this endpoint and the given video. return 0 if the given video
@@ -47,13 +47,13 @@ public:
      * The latency between an endpoint and a video is the minimum from all latencies between the
      * endpoint to some location (data-center or a cache) that holds this video.
      */
-    unsigned int getVideoDistance(const Video& video) const;
+    unsigned int getVideoDistance(unsigned int videoId) const;
 
     /**
      * @return number of requests from this endpoint to the given video. return 0 if the given video
      * is not in this endpoint' videos list
      */
-    unsigned int getNumRequests(const Video& video) const;
+    unsigned int getNumRequests(unsigned int videoId) const;
 
     unsigned int getId() const;
 

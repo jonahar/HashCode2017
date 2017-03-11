@@ -2,6 +2,7 @@
 #ifndef HASHCODE2017_VIDEO_HPP
 #define HASHCODE2017_VIDEO_HPP
 
+
 /**
  * representing a video instance
  */
