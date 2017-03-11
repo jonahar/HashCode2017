@@ -3,11 +3,22 @@
 #include <sstream>
 #include "Network.h"
 
-#define NUM_ARGS 2
-#define PATH_INDEX 1
+#include <getopt.h>
 
 
-void run(std::ifstream& fs, std::ofstream& ofs)
+const char* SPACE = " ";
+
+static int parallel = false;
+
+static struct option const long_options[] =
+        {
+                {"in",       required_argument, NULL, 'i'},
+                {"out",      required_argument, NULL, 'o'},
+                {"parallel", no_argument, &parallel,  true}
+        };
+
+
+void run(std::ifstream& fs, std::ofstream& ofs, int parallel)
 {
     Network network(fs);
 
@@ -17,6 +28,17 @@ void run(std::ifstream& fs, std::ofstream& ofs)
         network.caches[id].rateAndInsertVideos(network.videos, network.endpoints);
     }
 
+    // write result to output file
+    ofs << network.caches.size() << std::endl;
+    for (const Cache& cache: network.caches)
+    {
+        ofs << cache.getId();
+        for (unsigned int videoId: cache.getVideosInCache())
+        {
+            ofs << SPACE << videoId;
+        }
+        ofs << std::endl;
+    }
 }
 
 
@@ -25,27 +47,65 @@ void run(std::ifstream& fs, std::ofstream& ofs)
  */
 void usage()
 {
-    std::cout << "Usage: VideosOrganizer path/to/input/file" << std::endl;
+    std::cout << \
+"Google's HashCode 2017 problem solver\n\n\
+Usage: Organizer [OPTIONS]\n\
+\
+-i, --in                input file\n\
+-o, --out               output file\n\
+-p, --parallel          parallel mode (noticeably for large input files)\n";
 }
 
-int main(int argc, char *argv[])
+int error()
 {
-    if (argc != NUM_ARGS)
+    perror("Error");
+    return EXIT_FAILURE;
+}
+
+int main(int argc, char** argv)
+{
+
+    int c;
+    bool inProvided = false, outProvided = false;
+    std::ifstream ifs;
+    std::ofstream ofs;
+
+    while ((c = getopt_long(argc, argv, "i:o:p", long_options, NULL)) != -1)
     {
-        usage();
+        switch (c)
+        {
+            case 0:
+                // flag has been raised
+                break;
+            case 'i':
+                inProvided = true;
+                ifs.open(optarg, std::ios_base::in);
+                if (!ifs.is_open())
+                    return error();
+                break;
+            case 'o':
+                outProvided = true;
+                ofs.open(optarg, std::ios_base::out);
+                if (!ofs.is_open())
+                    return error();
+                break;
+            case 'p':
+                parallel = true;
+                break;
+            default:
+                usage();
+                return EXIT_FAILURE;
+        }
+    }
+
+
+    if (!inProvided || !outProvided)
+    {
+        std::cout << "must provide input and output files" << std::endl;
         return EXIT_FAILURE;
     }
 
-    std::ifstream ifs(argv[PATH_INDEX], std::ios_base::in);
-    std::ofstream ofs(std::string(argv[PATH_INDEX])+".out", std::ios_base::out);
-
-    if (!ifs.is_open() || !ofs.is_open())
-    {
-        perror("Error");
-        return EXIT_FAILURE;
-    }
-
-    run(ifs, ofs);
+    run(ifs, ofs, parallel);
 
     ifs.close();
     ofs.close();

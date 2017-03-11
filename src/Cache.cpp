@@ -87,3 +87,9 @@ void Cache::rateAndInsertVideos(const std::vector<Video>& videos, std::vector<En
         it++;
     }
 }
+
+
+const std::vector<unsigned int>& Cache::getVideosInCache() const
+{
+    return this->videosInCache;
+}

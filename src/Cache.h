@@ -51,6 +51,11 @@ public:
      */
     void rateAndInsertVideos(const std::vector<Video>& videos, std::vector<Endpoint> endpoints);
 
+    /**
+     * @return a vector with the id's of the videos in this cache
+     */
+    const std::vector<unsigned int>& getVideosInCache() const;
+
 };
 
 
