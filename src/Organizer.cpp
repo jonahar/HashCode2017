@@ -71,7 +71,7 @@ int main(int argc, char** argv)
     std::ifstream ifs;
     std::ofstream ofs;
 
-    while ((c = getopt_long(argc, argv, "i:o:p", long_options, NULL)) != -1)
+    while ((c = getopt_long(argc, argv, "i:o:ph", long_options, NULL)) != -1)
     {
         switch (c)
         {
