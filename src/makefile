@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++11 -Wall -Wextra -Wvla -c -g
+CFLAGS = -std=c++11 -Wall -Wextra -c -g
 LFLAGS = -std=c++11
 
 
@@ -19,8 +19,6 @@ $(PROGRAM): $(OBJS)
 
 clean:
 	rm $(PROGRAM) *.o *.d
-
-
 
 
 -include $(OBJS:.o=.d)

@@ -50,7 +50,8 @@ struct ScoredVideo
 };
 
 
-void Cache::rateAndInsertVideos(const std::vector<Video>& videos, std::vector<Endpoint> endpoints)
+void Cache::rateAndInsertVideos(const std::vector<Video>& videos, std::vector<Endpoint> endpoints,
+                                int parallel)
 {
     // todo support parallel computation
 

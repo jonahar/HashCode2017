@@ -1,9 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "Network.h"
-
 #include <getopt.h>
+#include "Network.h"
 
 
 const char* SPACE = " ";
@@ -12,6 +11,7 @@ static int parallel = false;
 
 static struct option const long_options[] =
         {
+                {"help",     no_argument,       NULL, 'h'},
                 {"in",       required_argument, NULL, 'i'},
                 {"out",      required_argument, NULL, 'o'},
                 {"parallel", no_argument, &parallel,  true}
@@ -25,7 +25,7 @@ void run(std::ifstream& fs, std::ofstream& ofs, int parallel)
     // give scores and spread videos between caches
     for (unsigned int id = 0; id < network.caches.size(); ++id)
     {
-        network.caches[id].rateAndInsertVideos(network.videos, network.endpoints);
+        network.caches[id].rateAndInsertVideos(network.videos, network.endpoints, parallel);
     }
 
     // write result to output file
@@ -51,6 +51,7 @@ void usage()
 "Google's HashCode 2017 problem solver\n\n\
 Usage: Organizer [OPTIONS]\n\
 \
+-h, --help              display this help and exit\n\
 -i, --in                input file\n\
 -o, --out               output file\n\
 -p, --parallel          parallel mode (noticeably for large input files)\n";
@@ -92,6 +93,9 @@ int main(int argc, char** argv)
             case 'p':
                 parallel = true;
                 break;
+            case 'h':
+                usage();
+                return EXIT_SUCCESS;
             default:
                 usage();
                 return EXIT_FAILURE;
