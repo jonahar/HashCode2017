@@ -53,8 +53,9 @@ Usage: Organizer [OPTIONS]\n\
 \
 -h, --help              display this help and exit\n\
 -i, --in                input file\n\
--o, --out               output file\n\
--p, --parallel          parallel mode (noticeably for large input files)\n";
+-o, --out               output file\n";
+    // todo add parallel option after implementing
+    // -p, --parallel          parallel mode
 }
 
 int error()
