@@ -59,7 +59,7 @@ unsigned long calculateSolutionScore(Network& network)
 }
 
 
-void run(std::ifstream& ifs, std::ofstream& ofs, int parallel)
+void run(std::ifstream& ifs, std::ofstream& ofs)
 {
     Network network(ifs);
 
@@ -144,7 +144,7 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    run(ifs, ofs, parallel);
+    run(ifs, ofs);
 
     ifs.close();
     ofs.close();
