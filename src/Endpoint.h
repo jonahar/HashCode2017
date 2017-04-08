@@ -57,6 +57,8 @@ public:
 
     unsigned int getId() const;
 
+    unsigned int getDataCenterLatency();
+
 };
 
 

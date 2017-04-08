@@ -66,3 +66,8 @@ unsigned int Endpoint::getId() const
 {
     return id;
 }
+
+unsigned int Endpoint::getDataCenterLatency()
+{
+    return dataCenterLatency;
+}

@@ -1,25 +1,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
-#include "Cache.h"
 #include "Network.h"
-
-
-// ------------------------------ Declarations ------------------------------
-
-std::vector<Video> buildVideos(std::ifstream& fs, unsigned int numVideos);
-
-std::vector<Cache> buildCaches(unsigned int numCaches, unsigned int capacity);
-
-std::vector<Endpoint> buildEndpoints(std::ifstream& fs, unsigned int numEndpoints,
-                                     std::vector<Cache>& caches);
-
-void readRequests(std::ifstream& fs, unsigned int requestDescriptions,
-                  std::vector<Endpoint>& endpoints);
-
-
-// ------------------------------ Definitions ------------------------------
-
 
 
 Network::Network(std::ifstream& fs)
@@ -29,25 +11,26 @@ Network::Network(std::ifstream& fs)
     std::getline(fs, line);
     std::stringstream lineStream(line);
 
+    totalRequests = 0;
+
     // extract all values in the first line
     lineStream >> numVideos >> numEndpoints >> totalRequestDescriptions >> numCaches
                >> cacheCapacity;
 
 
-    this->videos = buildVideos(fs, numVideos);
+    buildVideos(fs, numVideos);
 
-    this->caches = buildCaches(numCaches, cacheCapacity);
+    buildCaches(numCaches, cacheCapacity);
 
-    this->endpoints = buildEndpoints(fs, numEndpoints, this->caches);
+    buildEndpoints(fs, numEndpoints);
 
-    readRequests(fs, totalRequestDescriptions, this->endpoints);
+    parseRequests(fs, totalRequestDescriptions);
 
 }
 
 
-std::vector<Video> buildVideos(std::ifstream& fs, unsigned int numVideos)
+void Network::buildVideos(std::ifstream& fs, unsigned int numVideos)
 {
-    std::vector<Video> videos;
     std::string line;
     std::getline(fs, line);
     std::stringstream lineStream(line);
@@ -57,28 +40,23 @@ std::vector<Video> buildVideos(std::ifstream& fs, unsigned int numVideos)
         lineStream >> videoSize;
         videos.push_back(Video(id, videoSize));
     }
-    return videos;
 }
 
 /**
  * build the requested number of caches and adds them to the network
  * @param capacity the capacity of a single cache
  */
-std::vector<Cache> buildCaches(unsigned int numCaches, unsigned int capacity)
+void Network::buildCaches(unsigned int numCaches, unsigned int capacity)
 {
-    std::vector<Cache> caches;
     for (unsigned int id = 0; id < numCaches; ++id)
     {
         caches.push_back(Cache(id, capacity));
     }
-    return caches;
 }
 
 
-std::vector<Endpoint> buildEndpoints(std::ifstream& fs, unsigned int numEndpoints,
-                                     std::vector<Cache>& caches)
+void Network::buildEndpoints(std::ifstream& fs, unsigned int numEndpoints)
 {
-    std::vector<Endpoint> endpoints;
     for (unsigned int id = 0; id < numEndpoints; ++id)
     {
         unsigned int dataCenterLatency, connectedCaches;
@@ -100,12 +78,10 @@ std::vector<Endpoint> buildEndpoints(std::ifstream& fs, unsigned int numEndpoint
             caches[cacheId].addEndpoint(id, endpointCacheLatency);
         }
     }
-    return endpoints;
 }
 
 
-void readRequests(std::ifstream& fs, unsigned int requestDescriptions,
-                  std::vector<Endpoint>& endpoints)
+void Network::parseRequests(std::ifstream& fs, unsigned int requestDescriptions)
 {
     for (unsigned int i = 0; i < requestDescriptions; ++i)
     {
@@ -114,6 +90,12 @@ void readRequests(std::ifstream& fs, unsigned int requestDescriptions,
         std::getline(fs, line);
         std::stringstream stringStream(line);
         stringStream >> videoId >> endpointId >> numRequests;
+        totalRequests += numRequests;
         endpoints[endpointId].addVideo(videoId, numRequests);
     }
+}
+
+unsigned long Network::getTotalRequests()
+{
+    return totalRequests;
 }

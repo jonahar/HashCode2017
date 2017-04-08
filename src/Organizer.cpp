@@ -18,17 +18,16 @@ static struct option const long_options[] =
         };
 
 
-void run(std::ifstream& fs, std::ofstream& ofs, int parallel)
+void putVideosInCaches(Network& network)
 {
-    Network network(fs);
-
-    // give scores and spread videos between caches
     for (unsigned int id = 0; id < network.caches.size(); ++id)
     {
         network.caches[id].rateAndInsertVideos(network.videos, network.endpoints, parallel);
     }
+}
 
-    // write result to output file
+void writeCachesContents(Network& network, std::ofstream& ofs)
+{
     ofs << network.caches.size() << std::endl;
     for (const Cache& cache: network.caches)
     {
@@ -39,6 +38,41 @@ void run(std::ifstream& fs, std::ofstream& ofs, int parallel)
         }
         ofs << std::endl;
     }
+}
+
+unsigned long calculateSolutionScore(Network& network)
+{
+    unsigned long score = 0;
+    for(Endpoint& e: network.endpoints)
+    {
+        for(unsigned int i = 0; i < network.videos.size(); i++)
+        {
+            if(e.getNumRequests(i) != 0)
+            {
+                // the i'th video is requested by this endpoint
+                // (L_d - min{}) * R_n
+                score += (e.getDataCenterLatency() - e.getVideoDistance(i)) * e.getNumRequests(i);
+            }
+        }
+    }
+    return (score * 1000) / network.getTotalRequests();
+}
+
+
+void run(std::ifstream& ifs, std::ofstream& ofs, int parallel)
+{
+    Network network(ifs);
+
+    // give scores and spread videos between caches
+    putVideosInCaches(network);
+
+    // write solution to output file
+    writeCachesContents(network, ofs);
+
+    //calculate the score of this solution
+    unsigned long score = calculateSolutionScore(network);
+    std::cout << "Videos placed in caches. Total score: " << score << std::endl;
+
 }
 
 
