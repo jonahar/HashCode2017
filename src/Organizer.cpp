@@ -22,17 +22,17 @@ void putVideosInCaches(Network& network)
 {
     for (unsigned int id = 0; id < network.caches.size(); ++id)
     {
-        network.caches[id].rateAndInsertVideos(network.videos, network.endpoints, parallel);
+        network.caches[id]->rateAndInsertVideos(network.videos, network.endpoints, parallel);
     }
 }
 
 void writeCachesContents(Network& network, std::ofstream& ofs)
 {
     ofs << network.caches.size() << std::endl;
-    for (const Cache& cache: network.caches)
+    for (const Cache* cache: network.caches)
     {
-        ofs << cache.getId();
-        for (unsigned int videoId: cache.getVideosInCache())
+        ofs << cache->getId();
+        for (unsigned int videoId: cache->getVideosInCache())
         {
             ofs << SPACE << videoId;
         }
@@ -43,15 +43,15 @@ void writeCachesContents(Network& network, std::ofstream& ofs)
 unsigned long calculateSolutionScore(Network& network)
 {
     unsigned long score = 0;
-    for(Endpoint& e: network.endpoints)
+    for(Endpoint* e: network.endpoints)
     {
         for(unsigned int i = 0; i < network.videos.size(); i++)
         {
-            if(e.getNumRequests(i) != 0)
+            if(e->getNumRequests(i) != 0)
             {
                 // the i'th video is requested by this endpoint
                 // (L_d - min{}) * R_n
-                score += (e.getDataCenterLatency() - e.getVideoDistance(i)) * e.getNumRequests(i);
+                score += (e->getDataCenterLatency() - e->getVideoDistance(i)) * e->getNumRequests(i);
             }
         }
     }

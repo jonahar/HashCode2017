@@ -11,7 +11,7 @@
 struct RequestedVideoData
 {
     unsigned int numRequests;
-    unsigned int latency;
+    unsigned int distance;
 };
 
 
@@ -20,11 +20,13 @@ class Endpoint
 private:
     unsigned int id, dataCenterLatency;
     // videos requested by this endpoint
-    std::unordered_map<int, RequestedVideoData> videos;
+    std::unordered_map<int, RequestedVideoData*> videos;
 
 public:
 
     Endpoint(unsigned int id, unsigned int dataCenterLatency);
+
+    ~Endpoint();
 
     /**
      * @return true if the given video was added, and wasn't already in the videos list

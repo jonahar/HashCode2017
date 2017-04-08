@@ -13,6 +13,14 @@ Endpoint::Endpoint(unsigned int id, unsigned int dataCenterLatency)
     this->dataCenterLatency = dataCenterLatency;
 }
 
+Endpoint::~Endpoint()
+{
+    for(std::pair<int, RequestedVideoData*> p: videos)
+    {
+        delete p.second;
+    }
+}
+
 bool Endpoint::addVideo(unsigned int videoId, unsigned int numRequests)
 {
     if (this->videos.find(videoId) != this->videos.end())
@@ -20,7 +28,9 @@ bool Endpoint::addVideo(unsigned int videoId, unsigned int numRequests)
         // this video is already in the list
         return false;
     }
-    this->videos.insert({videoId, {numRequests, this->dataCenterLatency}});
+    RequestedVideoData * rvd = new RequestedVideoData;
+    *rvd = {numRequests, this->dataCenterLatency};
+    this->videos.insert({videoId, rvd});
     return true;
 }
 
@@ -30,10 +40,10 @@ bool Endpoint::updateVideoDistance(unsigned int videoId, unsigned int newDistanc
     if (it != this->videos.end())
     {
         // the video is in the list
-        if (it->second.latency > newDistance)
+        if (it->second->distance > newDistance)
         {
-            // new latency is better
-            it->second.latency = newDistance;
+            // new distance is better
+            it->second->distance = newDistance;
             return true;
         }
     }
@@ -46,7 +56,7 @@ unsigned int Endpoint::getVideoDistance(unsigned int videoId) const
     if (it != this->videos.end())
     {
         // the video is in the list
-        return it->second.latency;
+        return it->second->distance;
     }
     return 0;
 }
@@ -57,7 +67,7 @@ unsigned int Endpoint::getNumRequests(unsigned int videoId) const
     if (it != this->videos.end())
     {
         // the video is in the list
-        return it->second.numRequests;
+        return it->second->numRequests;
     }
     return 0;
 }

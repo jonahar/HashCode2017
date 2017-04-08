@@ -50,7 +50,7 @@ struct ScoredVideo
 };
 
 
-void Cache::rateAndInsertVideos(const std::vector<Video>& videos, std::vector<Endpoint> endpoints,
+void Cache::rateAndInsertVideos(const std::vector<Video*>& videos, std::vector<Endpoint*> endpoints,
                                 int parallel)
 {
     // todo support parallel computation
@@ -61,10 +61,10 @@ void Cache::rateAndInsertVideos(const std::vector<Video>& videos, std::vector<En
         double score = 0;
         for (const ConnectedEndpoint& ce: this->endpoints)
         {
-            score += endpoints[ce.endpointId].getNumRequests(videoId) *
-                     (endpoints[ce.endpointId].getVideoDistance(videoId) - ce.latency);
+            score += endpoints[ce.endpointId]->getNumRequests(videoId) *
+                     (endpoints[ce.endpointId]->getVideoDistance(videoId) - ce.latency);
         }
-        score /= videos[videoId].getSize() * videos[videoId].getSize();
+        score /= videos[videoId]->getSize() * videos[videoId]->getSize();
         scores[videoId] = {videoId, score};
     }
 
@@ -73,16 +73,16 @@ void Cache::rateAndInsertVideos(const std::vector<Video>& videos, std::vector<En
     auto it = scores.begin();
     while (this->size < this->capacity && it != scores.end())
     {
-        if (videos[it->id].getSize() <= (capacity - size))
+        if (videos[it->id]->getSize() <= (capacity - size))
         {
             // there is enough space to insert video to the cache
             this->videosInCache.push_back(it->id);
-            size += videos[it->id].getSize();
+            size += videos[it->id]->getSize();
 
             // notify all endpoints that the video is available in this cache
             for (const ConnectedEndpoint& ce: this->endpoints)
             {
-                endpoints[ce.endpointId].updateVideoDistance(it->id, ce.latency);
+                endpoints[ce.endpointId]->updateVideoDistance(it->id, ce.latency);
             }
         }
         it++;

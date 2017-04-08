@@ -49,7 +49,7 @@ public:
      * @param videos vector of Video objects s.t. videos[k] = video with id k
      * @param endpoints vector of Endpoint objects s.t. endpoints[k] = endpoint with id k
      */
-    void rateAndInsertVideos(const std::vector<Video>& videos, std::vector<Endpoint> endpoints,
+    void rateAndInsertVideos(const std::vector<Video*>& videos, std::vector<Endpoint*> endpoints,
                              int parallel);
 
     /**

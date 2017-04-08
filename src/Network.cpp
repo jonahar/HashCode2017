@@ -28,6 +28,22 @@ Network::Network(std::ifstream& fs)
 
 }
 
+Network::~Network()
+{
+    for (Video* video: videos)
+    {
+        delete video;
+    }
+    for (Cache* cache: caches)
+    {
+        delete cache;
+    }
+    for (Endpoint* endpoint: endpoints)
+    {
+        delete endpoint;
+    }
+}
+
 
 void Network::buildVideos(std::ifstream& fs, unsigned int numVideos)
 {
@@ -38,7 +54,8 @@ void Network::buildVideos(std::ifstream& fs, unsigned int numVideos)
     for (unsigned int id = 0; id < numVideos; ++id)
     {
         lineStream >> videoSize;
-        videos.push_back(Video(id, videoSize));
+        Video* newVideo = new Video(id, videoSize);
+        videos.push_back(newVideo);
     }
 }
 
@@ -50,7 +67,8 @@ void Network::buildCaches(unsigned int numCaches, unsigned int capacity)
 {
     for (unsigned int id = 0; id < numCaches; ++id)
     {
-        caches.push_back(Cache(id, capacity));
+        Cache* newCache = new Cache(id, capacity);
+        caches.push_back(newCache);
     }
 }
 
@@ -66,7 +84,8 @@ void Network::buildEndpoints(std::ifstream& fs, unsigned int numEndpoints)
         stringStream >> dataCenterLatency >> connectedCaches;
 
         // build the endpoint
-        endpoints.push_back(Endpoint(id, dataCenterLatency));
+        Endpoint* newEndpoint = new Endpoint(id, dataCenterLatency);
+        endpoints.push_back(newEndpoint);
 
         // extract the data about the caches connected to this endpoint
         for (unsigned int i = 0; i < connectedCaches; ++i)
@@ -75,7 +94,7 @@ void Network::buildEndpoints(std::ifstream& fs, unsigned int numEndpoints)
             std::getline(fs, line);
             stringStream = std::stringstream(line);
             stringStream >> cacheId >> endpointCacheLatency;
-            caches[cacheId].addEndpoint(id, endpointCacheLatency);
+            caches[cacheId]->addEndpoint(id, endpointCacheLatency);
         }
     }
 }
@@ -91,7 +110,7 @@ void Network::parseRequests(std::ifstream& fs, unsigned int requestDescriptions)
         std::stringstream stringStream(line);
         stringStream >> videoId >> endpointId >> numRequests;
         totalRequests += numRequests;
-        endpoints[endpointId].addVideo(videoId, numRequests);
+        endpoints[endpointId]->addVideo(videoId, numRequests);
     }
 }
 

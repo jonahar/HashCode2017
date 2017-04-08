@@ -7,15 +7,17 @@
 class Network
 {
 public:
-    std::vector<Video> videos;
-    std::vector<Endpoint> endpoints;
-    std::vector<Cache> caches;
+    std::vector<Video*> videos;
+    std::vector<Endpoint*> endpoints;
+    std::vector<Cache*> caches;
 
     /**
      * parses a network specification input file (as described in the HashCode2017 pdf) and
      * constructs its corresponding network
      */
     Network(std::ifstream& fs);
+
+    ~Network();
 
     /**
      * @return total number of requests in all requests descriptions
